@@ -4,13 +4,12 @@ import safety_gym
 import randomizer.safe_env
 from safe_rl import cpo
 from safe_rl.utils.run_utils import setup_logger_kwargs
-from safe_rl.utils.mpi_tools import mpi_fork, proc_id
-import time
+from safe_rl.utils.mpi_tools import mpi_fork
 
 
-def cpo_trainer(seed, exp_name, cpu, env_name, cart, pole):
+def target_function(cart, pole):
     # Hyperparameters
-    num_steps = 6e3
+    num_steps = 1e6
     steps_per_epoch = 4000
     epochs = int(num_steps / steps_per_epoch)
     save_freq = 50
@@ -18,12 +17,16 @@ def cpo_trainer(seed, exp_name, cpu, env_name, cart, pole):
     cost_lim = 40
 
     # Fork for parallelizing
+    cpu = 4
     mpi_fork(cpu)
+
     # Prepare Logger
+    exp_name = 'test'
+    seed = 42
     logger_kwargs = setup_logger_kwargs(exp_name, seed)
 
     # Algo and Env
-    env_name = env_name
+    env_name = 'RandomizeSafeDoublePendulum-v0'
 
     cpo(env_fn=lambda: gym.make(env_name),
         ac_kwargs=dict(
@@ -36,22 +39,7 @@ def cpo_trainer(seed, exp_name, cpu, env_name, cart, pole):
         cost_lim=cost_lim,
         seed=seed,
         logger_kwargs=logger_kwargs,
-        max_ep_len=200,
-        env_kwargs=[cart, pole]
+        max_ep_len=200
         )
 
-    return logger_kwargs['output_dir']
 
-
-
-if __name__ == '__main__':
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int, default=0)
-    parser.add_argument('--exp_name', type=str, default='test_cpo')
-    parser.add_argument('--env_name', type=str, default='RandomizeSafeDoublePendulum-v0')
-    parser.add_argument('--cpu', type=int, default=1)
-    args = parser.parse_args()
-
-    cpo_trainer(args.seed, args.exp_name, 1, args.env_name, 0.1, 0.6)

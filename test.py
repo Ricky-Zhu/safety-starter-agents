@@ -1,10 +1,16 @@
-from safe_rl import ppo_lagrangian
-import gym, safety_gym
-import randomizer.safe_env
+from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 
-env = gym.make('RandomizeSafeDoublePendulum-v0')
 
-ppo_lagrangian(
-	env_fn = lambda : gym.make('Safexp-PointGoal1-v0'),
-	ac_kwargs = dict(hidden_sizes=(64,64))
-	)
+
+def foo():
+    print('sd')
+    def fooo():
+        mpi_fork(4)
+        print('asas')
+
+    fooo()
+    print('ddd')
+
+foo()
+
+
