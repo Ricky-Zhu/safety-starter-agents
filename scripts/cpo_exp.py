@@ -10,7 +10,7 @@ import time
 
 def cpo_trainer(seed, exp_name, cpu, env_name, cart, pole):
     # Hyperparameters
-    num_steps = 2e3
+    num_steps = 6e5
     steps_per_epoch = 500
     epochs = int(num_steps / steps_per_epoch)
     save_freq = 50
