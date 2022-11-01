@@ -80,7 +80,7 @@ if __name__ == '__main__':
         pass
 
 
-    constraint_limit = 40.  # align with tht safety budget
+    constraint_limit = 55.  # align with tht safety budget
 
     constraint = NonlinearConstraint(constraint_func, -np.inf, constraint_limit)
 
