@@ -8,6 +8,11 @@ import gym
 from scripts.cpo_exp import cpo_trainer
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import randomizer.safe_env
+from bayes_opt import BayesianOptimization
+from scipy.optimize import NonlinearConstraint
+from bayes_opt.logger import JSONLogger
+from bayes_opt.event import Events
+from bayes_opt.util import load_logs
 
 count = 0  # record how many times the target function is invoked for naming the logger
 default_cart = 0.1
@@ -64,13 +69,14 @@ def target_function(cart, pole):
     target_env = gym.make('RandomizeSafeDoublePendulum-v0')
     target_env.set_values(default_cart, default_pole)
     avg_return, avg_cost = run_policy(target_env, get_action, max_ep_len=200)
-    print('evaluate on the default env. ret:{}, cost:{}'.format(avg_ret,avg_cost))
+    print('evaluate on the default env. ret:{}, cost:{}'.format(avg_return, avg_cost))
 
     target_env.set_values(cart, pole)
     avg_return, avg_cost = run_policy(target_env, get_action, max_ep_len=200)
     print(avg_return, avg_cost)
 
     return avg_return, avg_cost
+
 
 if __name__ == '__main__':
     avg_ret, avg_cost = target_function(0.12, 0.65)

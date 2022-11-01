@@ -53,7 +53,7 @@ def run_polopt_agent(env_fn,
     # =========================================================================#
     #  Prepare logger, seed, and environment in this process                  #
     # =========================================================================#
-
+    tf.reset_default_graph()
     logger = EpochLogger(**logger_kwargs) if logger is None else logger
     logger.save_config(locals())
 
@@ -474,6 +474,7 @@ def run_polopt_agent(env_fn,
 
         # Show results!
         logger.dump_tabular()
+
 
 if __name__ == '__main__':
     import argparse

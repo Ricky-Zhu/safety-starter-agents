@@ -8,6 +8,12 @@ import gym
 from scripts.cpo_exp import cpo_trainer
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import randomizer.safe_env
+from bayes_opt import BayesianOptimization
+from scipy.optimize import NonlinearConstraint
+from bayes_opt.logger import JSONLogger
+from bayes_opt.event import Events
+import time
+from bayes_opt.util import load_logs
 
 count = 0  # record how many times the target function is invoked for naming the logger
 default_cart = 0.1
@@ -50,6 +56,7 @@ def run_policy(env, get_action, max_ep_len=None, render=False):
 
 def target_function(cart, pole):
     global count, default_cart, default_pole, training_record
+    print('selected cart {}, pole {}'.format(cart, pole))
     count += 1
     seed = 42
     exp_name = 'test_cpo_double_pendulum_{}'.format(count)
@@ -64,10 +71,35 @@ def target_function(cart, pole):
     target_env = gym.make('RandomizeSafeDoublePendulum-v0')
     target_env.set_values(default_cart, default_pole)
     avg_return, avg_cost = run_policy(target_env, get_action, max_ep_len=200)
+    print('finish one iteration')
     return avg_return, avg_cost
 
+
 if __name__ == '__main__':
-    avg_ret, avg_cost = target_function(0.1, 0.6)
-    print('evaluate on the same env. ret:{}, cost:{}'.format(avg_ret,avg_cost))
+    def constraint_func(cart, pole):  # does not matter, only an input to the nonlinear constraint in scipy
+        pass
 
 
+    constraint_limit = 40.  # align with tht safety budget
+
+    constraint = NonlinearConstraint(constraint_func, -np.inf, constraint_limit)
+
+    # Bounded region of parameter space
+    pbounds = {'cart': (0.05, 0.15), 'pole': (0.55, 0.85)}
+
+    optimizer = BayesianOptimization(
+        f=target_function,
+        constraint=constraint,
+        pbounds=pbounds,
+        verbose=0,  # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
+        random_state=1,
+    )
+
+    # save logs
+    logger = JSONLogger(path="./bayrn_logs_{}.json".format(time.strftime("%Y-%m-%d_%H-%M-%S")))
+    optimizer.subscribe(Events.OPTIMIZATION_STEP, logger)
+
+    optimizer.maximize(
+        init_points=5,
+        n_iter=15,
+    )
