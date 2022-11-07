@@ -54,9 +54,8 @@ def run_policy(env, get_action, max_ep_len=None, render=False):
     return logger.log_current_row.get("AverageEpRet", ""), logger.log_current_row.get("AverageEpCost", "")
 
 
-def target_function(cart, pole):
+def target_function(cart_mean, pole_mean, cart_var, pole_var):
     global count, default_cart, default_pole, training_record
-    print('selected cart {}, pole {}'.format(cart, pole))
     count += 1
     seed = 42
     exp_name = 'test_cpo_double_pendulum_{}'.format(count)
@@ -64,10 +63,10 @@ def target_function(cart, pole):
     env_name = 'RandomizeSafeDoublePendulum-v0'
 
     # randomized parameters definition in the order means of all parameters and then variance of all parameters
-    parameters = [0.1, 0.6, 1e-4, 2e-4]
+    parameters = [cart_mean, pole_mean, cart_var, pole_var]
     env_kwargs = {'env_name': env_name,
                   'with_var': True,
-                  'parameters':parameters}
+                  'parameters': parameters}
     # to modify the hyper-parameters in the training, check out the cpo_trainer function
     model_path = cpo_trainer(seed, exp_name, cpu, env_name, env_kwargs)
 
@@ -75,7 +74,7 @@ def target_function(cart, pole):
                                    'last',
                                    deterministic=False)
     target_env = gym.make('RandomizeSafeDoublePendulum-v0')
-    target_env.set_values(default_cart, default_pole)
+    target_env.set_values(cart_mean=default_cart, pole_mean=default_pole)
     avg_return, avg_cost = run_policy(target_env, get_action, max_ep_len=200)
     print('finish one iteration')
     return avg_return, avg_cost
@@ -91,7 +90,8 @@ if __name__ == '__main__':
     constraint = NonlinearConstraint(constraint_func, -np.inf, constraint_limit)
 
     # Bounded region of parameter space
-    pbounds = {'cart': (0.05, 0.15), 'pole': (0.55, 0.85)}
+    pbounds = {'cart_mean': (0.05, 0.15), 'pole_mean': (0.55, 0.85), 'cart_var': (9e-8, 2.25e-4),
+               'pole_var': (1.66e-8, 1.66e-4)}
 
     optimizer = BayesianOptimization(
         f=target_function,
@@ -102,10 +102,12 @@ if __name__ == '__main__':
     )
 
     # save logs
-    logger = JSONLogger(path="./bayrn_logs_{}.json".format(time.strftime("%Y-%m-%d_%H-%M-%S")))
+    current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+    logger = JSONLogger(path="./bayrn_logs_{}.json".format(current_time))
     optimizer.subscribe(Events.OPTIMIZATION_STEP, logger)
 
     optimizer.maximize(
         init_points=5,
         n_iter=15,
     )
+    print('save bo log bayrn_logs_{}.json!'.format(current_time))

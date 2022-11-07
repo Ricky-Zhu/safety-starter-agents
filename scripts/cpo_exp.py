@@ -2,13 +2,13 @@
 import gym
 import safety_gym
 import randomizer.safe_env
-from safe_rl import cpo
+from safe_rl import cpo, cpo_within_BO
 from safe_rl.utils.run_utils import setup_logger_kwargs
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import time
 
 
-def cpo_trainer(seed, exp_name, cpu, env_name, cart, pole):
+def cpo_trainer(seed, exp_name, cpu, env_name, env_kwargs=None):
     # Hyperparameters
     num_steps = 6e5
     steps_per_epoch = 500
@@ -25,7 +25,7 @@ def cpo_trainer(seed, exp_name, cpu, env_name, cart, pole):
     # Algo and Env
     env_name = env_name
 
-    cpo(env_fn=lambda: gym.make(env_name),
+    cpo_within_BO(env_fn=lambda: gym.make(env_name),
         ac_kwargs=dict(
             hidden_sizes=(256, 256),
         ),
@@ -37,11 +37,10 @@ def cpo_trainer(seed, exp_name, cpu, env_name, cart, pole):
         seed=seed,
         logger_kwargs=logger_kwargs,
         max_ep_len=200,
-        env_kwargs=[cart, pole]
+        env_kwargs=env_kwargs
         )
 
     return logger_kwargs['output_dir']
-
 
 
 if __name__ == '__main__':
