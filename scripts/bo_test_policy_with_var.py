@@ -5,7 +5,7 @@ import numpy as np
 from safe_rl.utils.load_utils import load_policy
 from safe_rl.utils.logx import EpochLogger
 import gym
-from scripts.cpo_exp import cpo_trainer
+from scripts.bo_exp_trainer import saferl_trainer
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import randomizer.safe_env
 from bayes_opt import BayesianOptimization
@@ -61,6 +61,7 @@ def target_function(cart_mean, pole_mean, cart_var, pole_var):
     exp_name = 'test_cpo_double_pendulum_{}'.format(count)
     cpu = 1  # for the BO target function only support cpu==1
     env_name = 'RandomizeSafeDoublePendulum-v0'
+    trainer_name = 'ppo'  # ppo->ppo lagrangian, trpo->trpo lagrangian, cpo->cpo
 
     # randomized parameters definition in the order means of all parameters and then variance of all parameters
     parameters = [cart_mean, pole_mean, cart_var, pole_var]
@@ -68,7 +69,7 @@ def target_function(cart_mean, pole_mean, cart_var, pole_var):
                   'with_var': True,
                   'parameters': parameters}
     # to modify the hyper-parameters in the training, check out the cpo_trainer function
-    model_path = cpo_trainer(seed, exp_name, cpu, env_name, env_kwargs)
+    model_path = saferl_trainer(seed, exp_name, cpu, env_name, env_kwargs, trainer_name)
 
     get_action, sess = load_policy(model_path,
                                    'last',
@@ -85,7 +86,7 @@ if __name__ == '__main__':
         pass
 
 
-    constraint_limit = 55.  # align with tht safety budget
+    constraint_limit = 50.  # align with tht safety budget
 
     constraint = NonlinearConstraint(constraint_func, -np.inf, constraint_limit)
 

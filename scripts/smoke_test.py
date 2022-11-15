@@ -5,7 +5,7 @@ import numpy as np
 from safe_rl.utils.load_utils import load_policy
 from safe_rl.utils.logx import EpochLogger
 import gym
-from scripts.cpo_exp import cpo_trainer
+from scripts.bo_exp_trainer import cpo_trainer
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import randomizer.safe_env
 from bayes_opt import BayesianOptimization

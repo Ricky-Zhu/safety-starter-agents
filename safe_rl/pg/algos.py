@@ -59,6 +59,8 @@ def cpo(**kwargs):
     agent = CPOAgent(**cpo_kwargs)
     run_polopt_agent(agent=agent, **kwargs)
 
+
+#################### the algos for running the safe rl within the loop of Bayesian optimization #################
 def cpo_within_BO(**kwargs):
     cpo_kwargs = dict(
         reward_penalized=False,  # Irrelevant in CPO
@@ -67,4 +69,26 @@ def cpo_within_BO(**kwargs):
         penalty_param_loss=False  # Irrelevant in CPO
     )
     agent = CPOAgent(**cpo_kwargs)
+    run_polopt_agent_within_BO(agent=agent, **kwargs)
+
+def ppo_lagrangian_within_BO(**kwargs):
+    # Objective-penalized form of Lagrangian PPO.
+    ppo_kwargs = dict(
+        reward_penalized=False,
+        objective_penalized=True,
+        learn_penalty=True,
+        penalty_param_loss=True
+    )
+    agent = PPOAgent(**ppo_kwargs)
+    run_polopt_agent_within_BO(agent=agent, **kwargs)
+
+def trpo_lagrangian_within_BO(**kwargs):
+    # Objective-penalized form of Lagrangian TRPO.
+    trpo_kwargs = dict(
+        reward_penalized=False,
+        objective_penalized=True,
+        learn_penalty=True,
+        penalty_param_loss=True
+    )
+    agent = TRPOAgent(**trpo_kwargs)
     run_polopt_agent_within_BO(agent=agent, **kwargs)
