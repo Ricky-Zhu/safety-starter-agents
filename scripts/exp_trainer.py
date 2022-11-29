@@ -2,7 +2,7 @@
 import gym
 import safety_gym
 import randomizer.safe_env
-from safe_rl import cpo, trpo_lagrangian, ppo_lagrangian
+from safe_rl import cpo, trpo_lagrangian, ppo_lagrangian, saute_ppo_lagrangian
 from safe_rl.utils.run_utils import setup_logger_kwargs
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import time
@@ -31,6 +31,9 @@ def saferl_trainer(seed, exp_name, cpu, env_name, env_kwargs=None, trainer_name=
         trainer = cpo
     elif trainer_name == 'trpo':
         trainer = trpo_lagrangian
+    elif trainer_name == 'saute':
+        trainer = saute_ppo_lagrangian
+        env_name = 'Saute' + env_name
     else:
         trainer = ppo_lagrangian
 
@@ -57,10 +60,10 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', type=int, default=0)
-    parser.add_argument('--exp_name', type=str, default='test_cpo')
+    parser.add_argument('--exp_name', type=str, default='test_saute')
     parser.add_argument('--env_name', type=str, default='RandomizeSafeDoublePendulum-v0')
     parser.add_argument('--cpu', type=int, default=1)
-    parser.add_argument('--trainer', type=str, default='cpo')
+    parser.add_argument('--trainer', type=str, default='saute')
     args = parser.parse_args()
     saferl_trainer(seed=args.seed, exp_name=args.exp_name, cpu=args.cpu, env_name=args.env_name,
                    trainer_name=args.trainer)

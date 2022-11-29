@@ -92,3 +92,29 @@ def trpo_lagrangian_within_BO(**kwargs):
     )
     agent = TRPOAgent(**trpo_kwargs)
     run_polopt_agent_within_BO(agent=agent, **kwargs)
+
+def saute_ppo_lagrangian_whin_BO(**kwargs):
+    """Set up to run Saute PPO Lagrangian."""
+    # Objective-penalized form of Lagrangian PPO.
+    ppo_kwargs = dict(
+                    reward_penalized=False,
+                    objective_penalized=True,
+                    learn_penalty=True,
+                    penalty_param_loss=True
+                    )
+    agent = PPOAgent(**ppo_kwargs)
+    kwargs['saute_lagrangian'] = True
+    run_polopt_agent_within_BO(agent=agent, **kwargs)
+
+def saute_ppo_lagrangian(**kwargs):
+    """Set up to run Saute PPO Lagrangian."""
+    # Objective-penalized form of Lagrangian PPO.
+    ppo_kwargs = dict(
+                    reward_penalized=False,
+                    objective_penalized=True,
+                    learn_penalty=True,
+                    penalty_param_loss=True
+                    )
+    agent = PPOAgent(**ppo_kwargs)
+    kwargs['saute_lagrangian'] = True
+    run_polopt_agent(agent=agent, **kwargs)

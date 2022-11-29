@@ -60,8 +60,11 @@ def target_function(cart_mean, pole_mean, cart_var, pole_var):
     seed = 42
     exp_name = 'test_cpo_double_pendulum_{}'.format(count)
     cpu = 1  # for the BO target function only support cpu==1
-    env_name = 'RandomizeSafeDoublePendulum-v0'
-    trainer_name = 'ppo'  # ppo->ppo lagrangian, trpo->trpo lagrangian, cpo->cpo
+    trainer_name = 'saute'  # ppo->ppo lagrangian, trpo->trpo lagrangian, cpo->cpo, saute -> saute ppo
+    if trainer_name == 'saute':
+        env_name = 'SauteRandomizeSafeDoublePendulum-v0'
+    else:
+        env_name = 'RandomizeSafeDoublePendulum-v0'
 
     # randomized parameters definition in the order means of all parameters and then variance of all parameters
     parameters = [cart_mean, pole_mean, cart_var, pole_var]
@@ -74,7 +77,7 @@ def target_function(cart_mean, pole_mean, cart_var, pole_var):
     get_action, sess = load_policy(model_path,
                                    'last',
                                    deterministic=False)
-    target_env = gym.make('RandomizeSafeDoublePendulum-v0')
+    target_env = gym.make(env_name)
     target_env.set_values(cart_mean=default_cart, pole_mean=default_pole)
     avg_return, avg_cost = run_policy(target_env, get_action, max_ep_len=200)
     print('finish one iteration')
@@ -86,7 +89,7 @@ if __name__ == '__main__':
         pass
 
 
-    constraint_limit = 50.  # align with tht safety budget
+    constraint_limit = 40.  # align with tht safety budget
 
     constraint = NonlinearConstraint(constraint_func, -np.inf, constraint_limit)
 

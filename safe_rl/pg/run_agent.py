@@ -14,6 +14,8 @@ from safe_rl.pg.utils import values_as_sorted_list
 from safe_rl.utils.logx import EpochLogger
 from safe_rl.utils.mpi_tf import MpiAdamOptimizer, sync_all_params
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id, num_procs, mpi_sum
+import os
+import pandas as pd
 
 
 # Multi-purpose agent runner for policy optimization algos
@@ -26,6 +28,8 @@ def run_polopt_agent(env_fn,
                      render=False,
                      # Experience collection:
                      steps_per_epoch=4000,
+                     saute_lagrangian=False,
+                     saute_constraint=False,
                      epochs=50,
                      max_ep_len=1000,
                      # Discount factors:
@@ -337,6 +341,8 @@ def run_polopt_agent(env_fn,
     o, r, d, c, ep_ret, ep_cost, ep_len = env.reset(), 0, False, 0, 0, 0, 0
     cur_penalty = 0
     cum_cost = 0
+    if saute_constraint:
+        true_ep_ret = 0
 
     for epoch in range(epochs):
 
@@ -366,6 +372,8 @@ def run_polopt_agent(env_fn,
 
             # Track cumulative cost over training
             cum_cost += c
+            if saute_lagrangian:
+                r = info['true_reward']
 
             # save and log
             if agent.reward_penalized:
@@ -378,6 +386,8 @@ def run_polopt_agent(env_fn,
 
             o = o2
             ep_ret += r
+            if saute_constraint:
+                true_ep_ret += info['true_reward']
             ep_cost += c
             ep_len += 1
 
@@ -399,12 +409,18 @@ def run_polopt_agent(env_fn,
 
                 # Only save EpRet / EpLen if trajectory finished
                 if terminal:
-                    logger.store(EpRet=ep_ret, EpLen=ep_len, EpCost=ep_cost)
+                    if saute_constraint:
+                        logger.store(EpRet=true_ep_ret, EpLen=ep_len, EpCost=ep_cost)
+
+                    else:
+                        logger.store(EpRet=ep_ret, EpLen=ep_len, EpCost=ep_cost)
                 else:
                     print('Warning: trajectory cut off by epoch at %d steps.' % ep_len)
 
                 # Reset environment
                 o, r, d, c, ep_ret, ep_len, ep_cost = env.reset(), 0, False, 0, 0, 0, 0
+                if saute_constraint:
+                    true_ep_ret = 0
 
         # Save model
         if (epoch % save_freq == 0) or (epoch == epochs - 1):
@@ -487,6 +503,8 @@ def run_polopt_agent_within_BO(env_fn,
                                steps_per_epoch=4000,
                                epochs=50,
                                max_ep_len=1000,
+                               saute_lagrangian=False,
+                               saute_constraint=False,
                                # Discount factors:
                                gamma=0.99,
                                lam=0.97,
@@ -534,7 +552,7 @@ def run_polopt_agent_within_BO(env_fn,
 
         # different env have different parameters to be determined
         env_name = env_kwargs['env_name']
-        if env_name == 'RandomizeSafeDoublePendulum-v0':
+        if env_name == 'RandomizeSafeDoublePendulum-v0' or 'SauteRandomizeSafeDoublePendulum-v0':
             assert len(env_kwargs['parameters']) == 4 if with_var else 2, "wrong number of parameters given!"
 
         else:
@@ -813,6 +831,8 @@ def run_polopt_agent_within_BO(env_fn,
     o, r, d, c, ep_ret, ep_cost, ep_len = env.reset(), 0, False, 0, 0, 0, 0
     cur_penalty = 0
     cum_cost = 0
+    if saute_constraint:
+        true_ep_ret = 0
 
     for epoch in range(epochs):
 
@@ -842,6 +862,8 @@ def run_polopt_agent_within_BO(env_fn,
 
             # Track cumulative cost over training
             cum_cost += c
+            if saute_lagrangian:
+                r = info['true_reward']
 
             # save and log
             if agent.reward_penalized:
@@ -856,6 +878,8 @@ def run_polopt_agent_within_BO(env_fn,
             ep_ret += r
             ep_cost += c
             ep_len += 1
+            if saute_constraint:
+                true_ep_ret += info['true_reward']
 
             terminal = d or (ep_len == max_ep_len)
             if terminal or (t == local_steps_per_epoch - 1):
@@ -875,12 +899,17 @@ def run_polopt_agent_within_BO(env_fn,
 
                 # Only save EpRet / EpLen if trajectory finished
                 if terminal:
-                    logger.store(EpRet=ep_ret, EpLen=ep_len, EpCost=ep_cost)
+                    if saute_constraint:
+                        logger.store(EpRet=true_ep_ret, EpLen=ep_len, EpCost=ep_cost)
+                    else:
+                        logger.store(EpRet=ep_ret, EpLen=ep_len, EpCost=ep_cost)
                 else:
                     print('Warning: trajectory cut off by epoch at %d steps.' % ep_len)
 
                 # Reset environment
                 o, r, d, c, ep_ret, ep_len, ep_cost = env.reset(), 0, False, 0, 0, 0, 0
+                if saute_constraint:
+                    true_ep_ret = 0
 
         if with_var:
             env.set_values(*env_kwargs['parameters'])

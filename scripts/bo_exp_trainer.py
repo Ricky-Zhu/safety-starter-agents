@@ -2,7 +2,7 @@
 import gym
 import safety_gym
 import randomizer.safe_env
-from safe_rl import cpo, cpo_within_BO, trpo_lagrangian_within_BO, ppo_lagrangian_within_BO
+from safe_rl import cpo, cpo_within_BO, trpo_lagrangian_within_BO, ppo_lagrangian_within_BO, saute_ppo_lagrangian_whin_BO
 from safe_rl.utils.run_utils import setup_logger_kwargs
 from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import time
@@ -31,8 +31,12 @@ def saferl_trainer(seed, exp_name, cpu, env_name, env_kwargs=None, trainer_name=
         trainer = cpo_within_BO
     elif trainer_name == 'trpo':
         trainer = trpo_lagrangian_within_BO
-    else:
+    elif trainer_name == 'saute':
+        trainer = saute_ppo_lagrangian_whin_BO
+    elif trainer_name=='ppo':
         trainer = ppo_lagrangian_within_BO
+    else:
+        print('wrong trainer name!')
 
     trainer(env_fn=lambda: gym.make(env_name),
             ac_kwargs=dict(
