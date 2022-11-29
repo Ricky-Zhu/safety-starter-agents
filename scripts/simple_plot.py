@@ -18,6 +18,8 @@ def plot(data_dir, smooth=10, title=None):
             z = np.ones(len(x))
             smoothed_x = np.convolve(x, y, 'same') / np.convolve(z, y, 'same')
             return smoothed_x
+        else:
+            return data
 
     avg_returns = smooth_data(avg_returns, smooth)
     avg_costs = smooth_data(avg_costs, smooth)
@@ -30,6 +32,6 @@ def plot(data_dir, smooth=10, title=None):
     plt.legend()
 
 
-path = '/home/ruiqi/temp/2022-11-28_test_cpo/2022-11-28_09-22-38-test_cpo_s0/progress.txt'
-plot(path, smooth=10, title='Lagrangian PPO')
+path = '/home/ruiqi/temp/logs.txt'
+plot(path, smooth=-1, title='Lagrangian PPO')
 plt.show()

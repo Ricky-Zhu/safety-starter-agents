@@ -118,3 +118,15 @@ def saute_ppo_lagrangian(**kwargs):
     agent = PPOAgent(**ppo_kwargs)
     kwargs['saute_lagrangian'] = True
     run_polopt_agent(agent=agent, **kwargs)
+
+def saute_trpo(**kwargs):
+    """Run Saute TRPO."""
+    trpo_kwargs = dict(
+                    reward_penalized=False,
+                    objective_penalized=False,
+                    learn_penalty=False,
+                    penalty_param_loss=False  # Irrelevant in unconstrained
+                    )
+    agent = TRPOAgent(**trpo_kwargs)
+    kwargs['saute_constraint'] = True
+    run_polopt_agent(agent=agent, **kwargs)
