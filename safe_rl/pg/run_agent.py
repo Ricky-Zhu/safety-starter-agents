@@ -365,6 +365,8 @@ def run_polopt_agent(env_fn,
             pi_info_t = get_action_outs['pi_info']
 
             # Step in environment
+            if a.ndim > 1:
+                a = a[0]
             o2, r, d, info = env.step(a)
 
             # Include penalty on cost
