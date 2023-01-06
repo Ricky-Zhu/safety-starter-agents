@@ -8,15 +8,27 @@ from safe_rl.utils.mpi_tools import mpi_fork, proc_id
 import time
 
 
-def saferl_trainer(seed, exp_name, cpu, env_name, env_kwargs=None, trainer_name='cpo'):
+def saferl_trainer(seed, exp_name, cpu, env_name, env_kwargs=None, trainer_name='cpo',
+                   exp_setup=None):
     # Hyperparameters
-    num_steps = 6e5
-    steps_per_epoch = 500
-    epochs = int(num_steps / steps_per_epoch)
-    save_freq = 50
-    target_kl = 0.01
-    cost_lim = 40
-    max_ep_len = 200  # each episode length to determine whether the episode terminate caused by reaching the max episode length
+    if exp_setup is not None:
+        num_steps = exp_setup['num_steps']
+        steps_per_epoch = exp_setup['steps_per_epoch']
+        epochs = int(num_steps / steps_per_epoch)
+        save_freq = exp_setup['save_freq']
+        target_kl = exp_setup['target_kl']
+        cost_lim = exp_setup['cost_lim']
+        max_ep_len = exp_setup['max_ep_len']
+
+    else:
+        num_steps = 6e5
+        steps_per_epoch = 500
+        epochs = int(num_steps / steps_per_epoch)
+        save_freq = 50
+        target_kl = 0.01
+        cost_lim = 40
+        max_ep_len = 200  # each episode length to determine whether the episode terminate caused by reaching the max episode length
+
 
     # Fork for parallelizing
     mpi_fork(cpu)

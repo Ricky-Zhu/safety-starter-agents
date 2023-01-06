@@ -10,11 +10,11 @@ def plot(data_dir, smooth=10, title=None):
     avg_costs = data['AverageEpCost'].to_numpy()
     interaction_nums = data['TotalEnvInteracts'].to_numpy()
 
-    # get the legal max avg_ret
-    valid_ind = np.where(avg_returns>50.)[0]
-    valid_return = avg_returns[valid_ind]
-    ind = np.where(valid_return>97.4)[0]
-    print(interaction_nums[ind[0]])
+    # # get the legal max avg_ret
+    # valid_ind = np.where(avg_returns > 50.)[0]
+    # valid_return = avg_returns[valid_ind]
+    # ind = np.where(valid_return > 97.4)[0]
+    # print(interaction_nums[ind[0]])
 
     # smooth the data
     def smooth_data(data, smooth):
@@ -38,6 +38,7 @@ def plot(data_dir, smooth=10, title=None):
     plt.legend()
 
 
-path = '/home/ruiqi/temp/2022-11-29_test_3_baselines/2022-11-29_17-14-16-test_3_baselines_s0/progress.txt'
-plot(path, smooth=-1, title='Lagrangian PPO')
-plt.show()
+if __name__ == "__main__":
+    path = '/home/ruiqi/2023-01-01_19-15-19-ppo_lagrangian_DoggoGoal1_s0/progress.txt'
+    plot(path, smooth=-1, title='Lagrangian PPO')
+    plt.show()

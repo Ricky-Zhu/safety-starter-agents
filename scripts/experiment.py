@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import gym
 import safety_gym
-import randomizer.safe_env
 import safe_rl
 from safe_rl.utils.run_utils import setup_logger_kwargs
 from safe_rl.utils.mpi_tools import mpi_fork
@@ -63,12 +62,12 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--robot', type=str, default='Point')
+    parser.add_argument('--robot', type=str, default='point')
     parser.add_argument('--task', type=str, default='Goal1')
-    parser.add_argument('--algo', type=str, default='ppo')
+    parser.add_argument('--algo', type=str, default='ppo_lagrangian')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--exp_name', type=str, default='')
-    parser.add_argument('--env_name', type=str, default='RandomizeSafeDoublePendulum-v0')
+    parser.add_argument('--env_name', type=str, default='Safexp-DoggoGoal1-v0')
     parser.add_argument('--cpu', type=int, default=1)
     args = parser.parse_args()
     exp_name = args.exp_name if not (args.exp_name == '') else None

@@ -552,14 +552,6 @@ def run_polopt_agent_within_BO(env_fn,
 
         env.set_with_var(with_var)
 
-        # different env have different parameters to be determined
-        env_name = env_kwargs['env_name']
-        if env_name == 'RandomizeSafeDoublePendulum-v0' or 'SauteRandomizeSafeDoublePendulum-v0':
-            assert len(env_kwargs['parameters']) == 4 if with_var else 2, "wrong number of parameters given!"
-
-        else:
-            raise NotImplementedError
-
     agent.set_logger(logger)
 
     # =========================================================================#
@@ -833,8 +825,6 @@ def run_polopt_agent_within_BO(env_fn,
     o, r, d, c, ep_ret, ep_cost, ep_len = env.reset(), 0, False, 0, 0, 0, 0
     cur_penalty = 0
     cum_cost = 0
-    if saute_constraint:
-        true_ep_ret = 0
 
     for epoch in range(epochs):
 
@@ -880,8 +870,7 @@ def run_polopt_agent_within_BO(env_fn,
             ep_ret += r
             ep_cost += c
             ep_len += 1
-            if saute_constraint:
-                true_ep_ret += info['true_reward']
+
 
             terminal = d or (ep_len == max_ep_len)
             if terminal or (t == local_steps_per_epoch - 1):

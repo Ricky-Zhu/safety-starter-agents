@@ -10,4 +10,4 @@ default_pole = 0.6`
 * modify the experiment of safe rl, check `bo_exp_trainer.py`
 
 ## run safe rl on our envs
-`python exp_trainer.py --seed 1 --exp_name test_cpo --env_name RandomizeSafeDoublePendulum-v0 --trainer cpo`
+`python exp_trainer.py --seed 300 --cost_lim 0.5 --exp_name cpo_fetch_slide --env_name RandomizeSafeFetchSlideCostSimpleEnv-v0 --trainer cpo`
