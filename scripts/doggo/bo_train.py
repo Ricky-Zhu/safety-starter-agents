@@ -55,7 +55,7 @@ def run_policy(env, get_action, max_ep_len=None, render=False):
 def target_function(front_density_mean, rear_density_mean, front_density_var, rear_density_var):
     global count, default_front_density, default_rear_density, training_record
     count += 1
-    seed = 42
+    seed = 100
     cpu = 1  # for the BO target function only support cpu==1
     trainer_name = 'ppo'  # ppo->ppo lagrangian, trpo->trpo lagrangian, cpo->cpo
     exp_name = 'test_{}_doggo_{}'.format(trainer_name, count)
@@ -69,7 +69,7 @@ def target_function(front_density_mean, rear_density_mean, front_density_var, re
                   'parameters': parameters}
 
     # to modify the hyper-parameters in the training, check out the cpo_trainer function
-    exp_setup = {'num_steps': 1e8,
+    exp_setup = {'num_steps': 1e6,
                  'steps_per_epoch': 60000,
                  'save_freq': 50,
                  'target_kl': 0.01,

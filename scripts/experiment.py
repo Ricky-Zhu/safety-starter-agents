@@ -54,12 +54,15 @@ def main(robot, task, algo, seed, exp_name, cpu, env_name):
          cost_lim=cost_lim,
          seed=seed,
          logger_kwargs=logger_kwargs,
-         max_ep_len=200
+         max_ep_len=1000
          )
 
 
 if __name__ == '__main__':
     import argparse
+    import os
+
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--robot', type=str, default='point')
@@ -67,7 +70,7 @@ if __name__ == '__main__':
     parser.add_argument('--algo', type=str, default='ppo_lagrangian')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--exp_name', type=str, default='')
-    parser.add_argument('--env_name', type=str, default='Safexp-DoggoGoal1-v0')
+    parser.add_argument('--env_name', type=str, default='Safexp-PointGoal1-v0')
     parser.add_argument('--cpu', type=int, default=1)
     args = parser.parse_args()
     exp_name = args.exp_name if not (args.exp_name == '') else None
