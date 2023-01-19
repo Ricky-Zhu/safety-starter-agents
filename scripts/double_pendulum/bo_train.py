@@ -58,21 +58,30 @@ def target_function(cart_mean, pole_mean, cart_var, pole_var):
     global count, default_cart, default_pole, training_record
     count += 1
     seed = 42
-    exp_name = 'test_cpo_double_pendulum_{}'.format(count)
     cpu = 1  # for the BO target function only support cpu==1
-    trainer_name = 'saute'  # ppo->ppo lagrangian, trpo->trpo lagrangian, cpo->cpo, saute -> saute ppo
+    trainer_name = 'ppo'  # ppo->ppo lagrangian, trpo->trpo lagrangian, cpo->cpo, saute -> saute ppo
     if trainer_name == 'saute':
         env_name = 'SauteRandomizeSafeDoublePendulum-v0'
     else:
         env_name = 'RandomizeSafeDoublePendulum-v0'
+
+    exp_name = 'test_{}_double_pendulum_{}'.format(trainer_name, count)
 
     # randomized parameters definition in the order means of all parameters and then variance of all parameters
     parameters = [cart_mean, pole_mean, cart_var, pole_var]
     env_kwargs = {'env_name': env_name,
                   'with_var': True,
                   'parameters': parameters}
+
+    exp_setup = {'num_steps': 6e5,
+                 'steps_per_epoch': 1000,
+                 'save_freq': 50,
+                 'target_kl': 0.01,
+                 'cost_lim': 40,
+                 'max_ep_len': 200}
+
     # to modify the hyper-parameters in the training, check out the cpo_trainer function
-    model_path = saferl_trainer(seed, exp_name, cpu, env_name, env_kwargs, trainer_name)
+    model_path = saferl_trainer(seed, exp_name, cpu, env_name, env_kwargs, trainer_name, exp_setup=exp_setup)
 
     get_action, sess = load_policy(model_path,
                                    'last',

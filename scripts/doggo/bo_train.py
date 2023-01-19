@@ -69,8 +69,8 @@ def target_function(front_density_mean, rear_density_mean, front_density_var, re
                   'parameters': parameters}
 
     # to modify the hyper-parameters in the training, check out the cpo_trainer function
-    exp_setup = {'num_steps': 1e6,
-                 'steps_per_epoch': 10000,
+    exp_setup = {'num_steps': 1e8,
+                 'steps_per_epoch': 60000,
                  'save_freq': 50,
                  'target_kl': 0.01,
                  'cost_lim': 25,
